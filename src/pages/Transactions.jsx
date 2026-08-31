@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { formatBRL, formatDate } from '../utils/format'
+import { getCategoryColor } from '../utils/categoryColor'
 
 const emptyForm = { description: '', amount: '', type: 'despesa', account_id: '', category_id: '', date: new Date().toISOString().slice(0, 10) }
 
@@ -106,7 +107,10 @@ export default function Transactions() {
               <span>{t.description}</span>
               <span>{t.accounts?.name}</span>
               <span>
-                {t.categories?.name && <span className="tag" style={{ background: t.categories.color + '22', color: t.categories.color }}>{t.categories.name}</span>}
+                {t.categories?.name && (() => {
+                  const cor = getCategoryColor(t.category_id)
+                  return <span className="tag" style={{ background: cor + '22', color: cor }}>{t.categories.name}</span>
+                })()}
               </span>
               <span className={'num ' + (t.type === 'receita' ? 'income' : 'expense')}>
                 {t.type === 'receita' ? '+' : '−'} {formatBRL(t.amount)}

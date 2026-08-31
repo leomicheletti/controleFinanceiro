@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import BrandMark from '../components/BrandMark'
 
 export default function Login() {
   const { signIn, signUp } = useAuth()
@@ -35,10 +36,10 @@ export default function Login() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <span className="auth-brand-mark">₡</span>
-          <h1>Micheletti</h1>
+          <span className="auth-brand-mark"><BrandMark size={22} /></span>
+          <h1>Controle financeiro</h1>
         </div>
-        <p className="auth-sub">Seu controle financeiro, do jeito de um livro-caixa.</p>
+        <p className="auth-sub">Suas contas, transações e metas em um só painel.</p>
 
         <div className="auth-tabs">
           <button className={mode === 'entrar' ? 'active' : ''} onClick={() => setMode('entrar')} type="button">Entrar</button>

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { formatBRL } from '../utils/format'
+import { getCategoryColor } from '../utils/categoryColor'
 
 export default function Dashboard() {
   const { balances, transactions, goals, loading } = useFinanceData()
@@ -17,7 +18,7 @@ export default function Dashboard() {
     const map = {}
     txMes.filter(t => t.type === 'despesa').forEach(t => {
       const nome = t.categories?.name || 'Sem categoria'
-      const cor = t.categories?.color || '#B54834'
+      const cor = getCategoryColor(t.category_id || nome)
       if (!map[nome]) map[nome] = { name: nome, value: 0, color: cor }
       map[nome].value += Number(t.amount)
     })
