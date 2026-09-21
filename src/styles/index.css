@@ -118,6 +118,7 @@ input, select { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 .auth-card {
   padding: 40px 36px;
@@ -256,7 +257,7 @@ input, select { font-family: inherit; }
     background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
   }
   .sidebar {
-    position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+    position: fixed; top: 0; left: 0; height: 100vh; width: min(78vw, 280px);
     transform: translateX(-105%); transition: transform 0.28s ease;
     z-index: 50; border-radius: 0 var(--radius) var(--radius) 0;
   }
@@ -266,6 +267,59 @@ input, select { font-family: inherit; }
 }
 @media (min-width: 861px) {
   .sidebar-overlay { display: none; }
+}
+
+/* ---------- Áreas de toque maiores em telas de toque (celular e tablet) ----------
+   Aplica-se tanto por largura quanto por tipo de ponteiro, para cobrir
+   tablets grandes em modo paisagem que ainda são operados por toque. */
+@media (max-width: 860px), (pointer: coarse) {
+  .btn-primary, .btn-ghost { min-height: 44px; }
+  .btn-icon { min-width: 40px; min-height: 40px; }
+  .nav-link { min-height: 46px; }
+  .inline-form input, .inline-form select,
+  .tx-form input:not([type="checkbox"]), .tx-form select { min-height: 44px; }
+  .tx-type-toggle button, .filter-row button { min-height: 42px; }
+  .theme-toggle-btn { min-height: 42px; }
+}
+
+/* ---------- Formulários empilhados em telas estreitas ---------- */
+@media (max-width: 640px) {
+  .app-content { padding: 16px 14px 28px; }
+  .page-header { margin-bottom: 18px; }
+  .page-header h1 { font-size: 1.3rem; }
+  .panel, .auth-card { padding: 16px; }
+
+  .inline-form, .tx-form { flex-direction: column; align-items: stretch; padding: 14px; }
+  .inline-form > *, .tx-form > * { width: 100%; }
+  .input-day { max-width: none; }
+  .tx-type-toggle { width: 100%; }
+  .tx-type-toggle button { flex: 1; }
+  .inline-form .btn-primary, .tx-form .btn-primary { order: 10; }
+
+  .filter-row { width: 100%; }
+  .filter-row button { flex: 1; text-align: center; }
+
+  .cards-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-value { font-size: 1.2rem; }
+
+  .tx-item { padding: 12px 14px; }
+  .tx-item-right { width: 100%; justify-content: space-between; margin-left: 0; }
+  .fixed-actions { width: 100%; justify-content: flex-start; }
+
+  .ledger-grid, .goals-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Telas bem pequenas ---------- */
+@media (max-width: 380px) {
+  .cards-row { grid-template-columns: 1fr; }
+}
+
+/* ---------- Área segura (notch/home indicator) em iPhones ---------- */
+.mobile-topbar-toggle { padding-top: max(14px, env(safe-area-inset-top)); }
+.sidebar { padding-left: max(16px, env(safe-area-inset-left)); }
+@media (max-width: 860px) {
+  .app-content { padding-bottom: max(32px, env(safe-area-inset-bottom)); }
 }
 .panel { padding: 20px; margin-bottom: 20px; }
 .panel h2 { font-size: 1rem; margin-bottom: 12px; font-weight: 600; }
@@ -295,22 +349,33 @@ input, select { font-family: inherit; }
 .tx-type-toggle button.active.income { background: var(--income); color: #06120C; }
 .tx-type-toggle button.active.expense { background: var(--expense); color: #1A0507; }
 
-/* ---------- Ledger (extrato estilo painel de dados) ---------- */
+/* ---------- Ledger (lista de itens estilo extrato bancário) ----------
+   Em vez de uma tabela de colunas fixas (que quebra em telas estreitas),
+   cada lançamento é um "item de lista": descrição + metadados à
+   esquerda, valor + ações à direita. Naturalmente flexível em qualquer
+   largura, sem precisar de breakpoints específicos para a lista. */
 .ledger { overflow: hidden; }
-.ledger-row {
-  display: grid; grid-template-columns: 90px 1fr 120px 140px 130px 32px;
-  align-items: center; gap: 10px; padding: 12px 18px;
+.tx-item {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 6px 16px; padding: 14px 18px;
   border-bottom: 1px solid var(--glass-border); font-size: 0.87rem;
   transition: background 0.15s;
 }
-.ledger-row:hover { background: rgba(255,255,255,0.03); }
-.ledger-row:last-child { border-bottom: none; }
-.ledger-head { background: rgba(255,255,255,0.03); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-soft); font-weight: 600; }
-.ledger-head:hover { background: rgba(255,255,255,0.03); }
-.ledger-row .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
-.ledger-row .num.income { color: var(--income); text-shadow: 0 0 12px rgba(52,211,153,0.35); }
-.ledger-row .num.expense { color: var(--expense); text-shadow: 0 0 12px rgba(251,113,133,0.35); }
-.tag { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid currentColor; }
+.tx-item:hover { background: rgba(255,255,255,0.03); }
+.tx-item:last-child { border-bottom: none; }
+.tx-item.inactive { opacity: 0.5; }
+
+.tx-item-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 200px; }
+.tx-item-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; }
+.tx-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.tx-item-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-soft); }
+.tx-item-meta .dot { opacity: 0.5; }
+
+.tx-item-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.num.income { color: var(--income); text-shadow: 0 0 12px rgba(52,211,153,0.35); }
+.num.expense { color: var(--expense); text-shadow: 0 0 12px rgba(251,113,133,0.35); }
+.tag { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid currentColor; white-space: nowrap; }
 
 /* ---------- Contas ---------- */
 .ledger-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
@@ -377,14 +442,10 @@ input, select { font-family: inherit; }
 }
 
 /* ---------- Despesas fixas ---------- */
-.fixed-head, .fixed-row {
-  grid-template-columns: 50px 1fr 130px 120px 150px 140px !important;
-}
-.num-day { font-family: var(--font-mono); color: var(--text-soft); }
-.fixed-row.inactive { opacity: 0.5; }
-.fixed-actions { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
-.btn-ghost.small { padding: 6px 10px; font-size: 0.76rem; }
-.status-pill { font-size: 0.72rem; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
+.fixed-actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.btn-ghost.small { padding: 7px 12px; font-size: 0.76rem; }
+.status-pill { font-size: 0.72rem; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
 .ok-pill { background: rgba(52,211,153,0.16); color: var(--income); }
 .pending-pill { background: rgba(251,191,84,0.16); color: var(--gold); }
 .muted-pill { background: rgba(255,255,255,0.06); color: var(--text-faint); }
+.input-day { max-width: 110px; }

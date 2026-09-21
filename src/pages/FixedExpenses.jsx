@@ -83,7 +83,7 @@ export default function FixedExpenses() {
           <option value="">Sem categoria</option>
           {categoriasDespesa.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <input type="number" min="1" max="31" placeholder="Dia venc." value={form.due_day} onChange={e => setForm({ ...form, due_day: e.target.value })} required style={{ width: 90 }} />
+        <input type="number" min="1" max="31" placeholder="Dia venc." className="input-day" value={form.due_day} onChange={e => setForm({ ...form, due_day: e.target.value })} required />
         <button type="submit" className="btn-primary" disabled={saving}>Cadastrar</button>
       </form>
 
@@ -92,30 +92,34 @@ export default function FixedExpenses() {
       )}
 
       <div className="ledger">
-        <div className="ledger-row ledger-head fixed-head">
-          <span>Dia</span><span>Nome</span><span>Categoria</span><span className="num">Valor</span><span>Status</span><span></span>
-        </div>
         {loading ? <p className="muted">Carregando…</p> : fixedExpenses.length === 0 ? <p className="muted">Nenhuma despesa fixa cadastrada ainda.</p> : (
           fixedExpenses.map(fe => (
-            <div key={fe.id} className={'ledger-row fixed-row' + (fe.active ? '' : ' inactive')}>
-              <span className="num-day">{String(fe.due_day).padStart(2, '0')}</span>
-              <span>{fe.name}</span>
-              <span>{fe.categories?.name && <span className="tag">{fe.categories.name}</span>}</span>
-              <span className="num expense">{formatBRL(fe.amount)}</span>
-              <span>
-                {!fe.active ? <span className="status-pill muted-pill">Pausada</span> :
-                  fe.posted_this_month ? <span className="status-pill ok-pill">Lançada este mês</span> :
-                    <span className="status-pill pending-pill">Pendente</span>}
-              </span>
-              <span className="fixed-actions">
-                {fe.active && !fe.posted_this_month && (
-                  <button className="btn-ghost small" onClick={() => handlePostNow(fe)}>Lançar agora</button>
-                )}
-                <button className="btn-icon" onClick={() => handleToggleActive(fe)} title={fe.active ? 'Pausar' : 'Reativar'}>
-                  {fe.active ? '⏸' : '▶'}
-                </button>
-                <button className="btn-icon" onClick={() => handleDelete(fe.id)} title="Excluir">✕</button>
-              </span>
+            <div key={fe.id} className={'tx-item' + (fe.active ? '' : ' inactive')}>
+              <div className="tx-item-main">
+                <div className="tx-item-title">
+                  <span className="tx-desc">{fe.name}</span>
+                  {fe.categories?.name && <span className="tag">{fe.categories.name}</span>}
+                </div>
+                <div className="tx-item-meta">
+                  <span>Vence dia {String(fe.due_day).padStart(2, '0')}</span>
+                  <span className="dot">•</span>
+                  {!fe.active ? <span className="status-pill muted-pill">Pausada</span> :
+                    fe.posted_this_month ? <span className="status-pill ok-pill">Lançada este mês</span> :
+                      <span className="status-pill pending-pill">Pendente</span>}
+                </div>
+              </div>
+              <div className="tx-item-right">
+                <span className="num expense">{formatBRL(fe.amount)}</span>
+                <div className="fixed-actions">
+                  {fe.active && !fe.posted_this_month && (
+                    <button className="btn-ghost small" onClick={() => handlePostNow(fe)}>Lançar agora</button>
+                  )}
+                  <button className="btn-icon" onClick={() => handleToggleActive(fe)} title={fe.active ? 'Pausar' : 'Reativar'}>
+                    {fe.active ? '⏸' : '▶'}
+                  </button>
+                  <button className="btn-icon" onClick={() => handleDelete(fe.id)} title="Excluir">✕</button>
+                </div>
+              </div>
             </div>
           ))
         )}

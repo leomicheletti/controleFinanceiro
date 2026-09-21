@@ -126,25 +126,30 @@ export default function Transactions() {
       </div>
 
       <div className="ledger">
-        <div className="ledger-row ledger-head">
-          <span>Data</span><span>Descrição</span><span>Conta</span><span>Categoria</span><span className="num">Valor</span><span></span>
-        </div>
         {loading ? <p className="muted">Carregando…</p> : transacoesFiltradas.length === 0 ? <p className="muted">Nenhuma transação encontrada.</p> : (
           transacoesFiltradas.map(t => (
-            <div key={t.id} className="ledger-row">
-              <span>{formatDate(t.date)}</span>
-              <span>{t.description}{t.is_fixed && <span className="fixed-badge">fixo</span>}</span>
-              <span>{t.accounts?.name}</span>
-              <span>
-                {t.categories?.name && (() => {
-                  const cor = getCategoryColor(t.category_id)
-                  return <span className="tag" style={{ background: cor + '22', color: cor }}>{t.categories.name}</span>
-                })()}
-              </span>
-              <span className={'num ' + (t.type === 'receita' ? 'income' : 'expense')}>
-                {t.type === 'receita' ? '+' : '−'} {formatBRL(t.amount)}
-              </span>
-              <button className="btn-icon" onClick={() => handleDelete(t.id)} title="Excluir">✕</button>
+            <div key={t.id} className="tx-item">
+              <div className="tx-item-main">
+                <div className="tx-item-title">
+                  <span className="tx-desc">{t.description}</span>
+                  {t.is_fixed && <span className="fixed-badge">fixo</span>}
+                </div>
+                <div className="tx-item-meta">
+                  <span>{formatDate(t.date)}</span>
+                  <span className="dot">•</span>
+                  <span>{t.accounts?.name}</span>
+                  {t.categories?.name && (() => {
+                    const cor = getCategoryColor(t.category_id)
+                    return <span className="tag" style={{ background: cor + '22', color: cor }}>{t.categories.name}</span>
+                  })()}
+                </div>
+              </div>
+              <div className="tx-item-right">
+                <span className={'num ' + (t.type === 'receita' ? 'income' : 'expense')}>
+                  {t.type === 'receita' ? '+' : '−'} {formatBRL(t.amount)}
+                </span>
+                <button className="btn-icon" onClick={() => handleDelete(t.id)} title="Excluir">✕</button>
+              </div>
             </div>
           ))
         )}
