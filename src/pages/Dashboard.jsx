@@ -3,9 +3,11 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis
 import { useFinanceData } from '../hooks/useFinanceData'
 import { formatBRL } from '../utils/format'
 import { getCategoryColor } from '../utils/categoryColor'
+import { buildInsights } from '../utils/insights'
+import InsightsPanel from '../components/InsightsPanel'
 
 export default function Dashboard() {
-  const { balances, transactions, goals, loading } = useFinanceData()
+  const { balances, transactions, categories, goals, fixedExpenses, loading } = useFinanceData()
 
   const totalBalance = useMemo(() => balances.reduce((s, b) => s + Number(b.balance), 0), [balances])
 
@@ -13,6 +15,9 @@ export default function Dashboard() {
   const txMes = transactions.filter(t => t.date.startsWith(mesAtual))
   const receitasMes = txMes.filter(t => t.type === 'receita').reduce((s, t) => s + Number(t.amount), 0)
   const despesasMes = txMes.filter(t => t.type === 'despesa').reduce((s, t) => s + Number(t.amount), 0)
+
+  const despesasFixasMes = txMes.filter(t => t.type === 'despesa' && t.is_fixed).reduce((s, t) => s + Number(t.amount), 0)
+  const despesasVariaveisMes = despesasMes - despesasFixasMes
 
   const porCategoria = useMemo(() => {
     const map = {}
@@ -25,6 +30,11 @@ export default function Dashboard() {
     return Object.values(map)
   }, [txMes])
 
+  const fixoVsVariavel = useMemo(() => ([
+    { name: 'Fixas', value: despesasFixasMes, color: 'var(--accent-a)' },
+    { name: 'Variáveis', value: despesasVariaveisMes, color: 'var(--accent-b)' },
+  ].filter(x => x.value > 0)), [despesasFixasMes, despesasVariaveisMes])
+
   const ultimosMeses = useMemo(() => {
     const map = {}
     transactions.forEach(t => {
@@ -34,6 +44,11 @@ export default function Dashboard() {
     })
     return Object.values(map).sort((a, b) => a.mes.localeCompare(b.mes)).slice(-6)
   }, [transactions])
+
+  const insights = useMemo(
+    () => buildInsights({ transactions, categories, fixedExpenses, goals, balances }),
+    [transactions, categories, fixedExpenses, goals, balances]
+  )
 
   if (loading) return <p className="muted">Carregando…</p>
 
@@ -57,7 +72,13 @@ export default function Dashboard() {
           <span className="stat-label">Despesas do mês</span>
           <span className="stat-value">{formatBRL(despesasMes)}</span>
         </div>
+        <div className="stat-card">
+          <span className="stat-label">Fixas x variáveis</span>
+          <span className="stat-value small-value">{formatBRL(despesasFixasMes)} <span className="muted">/</span> {formatBRL(despesasVariaveisMes)}</span>
+        </div>
       </section>
+
+      <InsightsPanel insights={insights} />
 
       <section className="charts-row">
         <div className="panel">
@@ -68,7 +89,21 @@ export default function Dashboard() {
                 <Pie data={porCategoria} dataKey="value" nameKey="name" innerRadius={60} outerRadius={95} paddingAngle={2}>
                   {porCategoria.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip formatter={(v) => formatBRL(v)} />
+                <Tooltip formatter={(v) => formatBRL(v)} contentStyle={{ background: 'var(--void-soft)', border: '1px solid var(--glass-border)', borderRadius: 10, color: 'var(--text)' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        <div className="panel">
+          <h2>Custos fixos x variáveis (mês)</h2>
+          {fixoVsVariavel.length === 0 ? <p className="muted">Sem despesas registradas neste mês ainda.</p> : (
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie data={fixoVsVariavel} dataKey="value" nameKey="name" innerRadius={60} outerRadius={95} paddingAngle={2}>
+                  {fixoVsVariavel.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip formatter={(v) => formatBRL(v)} contentStyle={{ background: 'var(--void-soft)', border: '1px solid var(--glass-border)', borderRadius: 10, color: 'var(--text)' }} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -78,12 +113,12 @@ export default function Dashboard() {
           <h2>Receitas x despesas (últimos meses)</h2>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={ultimosMeses}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#D8D2C2" />
-              <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(v) => formatBRL(v)} />
-              <Bar dataKey="receita" fill="#3F7D5C" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="despesa" fill="#B54834" radius={[3, 3, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
+              <XAxis dataKey="mes" tick={{ fontSize: 12, fill: 'var(--text-soft)' }} />
+              <YAxis tick={{ fontSize: 12, fill: 'var(--text-soft)' }} />
+              <Tooltip formatter={(v) => formatBRL(v)} contentStyle={{ background: 'var(--void-soft)', border: '1px solid var(--glass-border)', borderRadius: 10, color: 'var(--text)' }} />
+              <Bar dataKey="receita" fill="#34D399" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="despesa" fill="#FB7185" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

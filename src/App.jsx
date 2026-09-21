@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Accounts from './pages/Accounts'
 import Goals from './pages/Goals'
+import FixedExpenses from './pages/FixedExpenses'
 
 function PrivateRoute({ children }) {
   const { session } = useAuth()
@@ -31,6 +32,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="transacoes" element={<Transactions />} />
           <Route path="contas" element={<Accounts />} />
+          <Route path="fixas" element={<FixedExpenses />} />
           <Route path="metas" element={<Goals />} />
         </Route>
       </Routes>

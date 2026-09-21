@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { formatBRL, formatDate } from '../utils/format'
 import { getCategoryColor } from '../utils/categoryColor'
 
-const emptyForm = { description: '', amount: '', type: 'despesa', account_id: '', category_id: '', date: new Date().toISOString().slice(0, 10) }
+const emptyForm = { description: '', amount: '', type: 'despesa', account_id: '', category_id: '', date: new Date().toISOString().slice(0, 10), is_fixed: false }
 
 export default function Transactions() {
   const { user } = useAuth()
@@ -13,7 +13,8 @@ export default function Transactions() {
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [showCatForm, setShowCatForm] = useState(false)
-  const [newCat, setNewCat] = useState({ name: '', type: 'despesa' })
+  const [newCat, setNewCat] = useState({ name: '', type: 'despesa', monthly_budget: '' })
+  const [filtroFixo, setFiltroFixo] = useState('todos') // todos | fixo | variavel
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -27,6 +28,7 @@ export default function Transactions() {
       account_id: form.account_id,
       category_id: form.category_id || null,
       date: form.date,
+      is_fixed: form.type === 'despesa' ? form.is_fixed : false,
     })
     setForm({ ...emptyForm, account_id: form.account_id })
     setSaving(false)
@@ -36,8 +38,13 @@ export default function Transactions() {
   async function handleAddCategory(e) {
     e.preventDefault()
     if (!newCat.name.trim()) return
-    await supabase.from('categories').insert({ user_id: user.id, name: newCat.name.trim(), type: newCat.type })
-    setNewCat({ name: '', type: 'despesa' })
+    await supabase.from('categories').insert({
+      user_id: user.id,
+      name: newCat.name.trim(),
+      type: newCat.type,
+      monthly_budget: newCat.monthly_budget ? Number(newCat.monthly_budget) : null,
+    })
+    setNewCat({ name: '', type: 'despesa', monthly_budget: '' })
     setShowCatForm(false)
     reload()
   }
@@ -49,16 +56,22 @@ export default function Transactions() {
 
   const categoriasFiltradas = categories.filter(c => c.type === form.type)
 
+  const transacoesFiltradas = useMemo(() => {
+    if (filtroFixo === 'fixo') return transactions.filter(t => t.is_fixed)
+    if (filtroFixo === 'variavel') return transactions.filter(t => !t.is_fixed)
+    return transactions
+  }, [transactions, filtroFixo])
+
   return (
     <div>
       <header className="page-header">
         <h1>Transações</h1>
-        <p className="muted">Lançamentos de receitas e despesas</p>
+        <p className="muted">Lançamentos de receitas e despesas, fixas ou variáveis</p>
       </header>
 
       <form onSubmit={handleAdd} className="tx-form">
         <div className="tx-type-toggle">
-          <button type="button" className={form.type === 'receita' ? 'active income' : ''} onClick={() => setForm({ ...form, type: 'receita', category_id: '' })}>Receita</button>
+          <button type="button" className={form.type === 'receita' ? 'active income' : ''} onClick={() => setForm({ ...form, type: 'receita', category_id: '', is_fixed: false })}>Receita</button>
           <button type="button" className={form.type === 'despesa' ? 'active expense' : ''} onClick={() => setForm({ ...form, type: 'despesa', category_id: '' })}>Despesa</button>
         </div>
 
@@ -77,6 +90,13 @@ export default function Transactions() {
 
         <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
 
+        {form.type === 'despesa' && (
+          <label className="checkbox-label">
+            <input type="checkbox" checked={form.is_fixed} onChange={e => setForm({ ...form, is_fixed: e.target.checked })} />
+            Custo fixo
+          </label>
+        )}
+
         <button type="submit" className="btn-primary" disabled={saving}>Lançar</button>
         <button type="button" className="btn-ghost" onClick={() => setShowCatForm(s => !s)}>+ categoria</button>
       </form>
@@ -88,6 +108,9 @@ export default function Transactions() {
             <option value="despesa">Despesa</option>
             <option value="receita">Receita</option>
           </select>
+          {newCat.type === 'despesa' && (
+            <input type="number" step="0.01" placeholder="Orçamento mensal (opcional)" value={newCat.monthly_budget} onChange={e => setNewCat({ ...newCat, monthly_budget: e.target.value })} />
+          )}
           <button type="submit" className="btn-primary">Salvar categoria</button>
         </form>
       )}
@@ -96,15 +119,21 @@ export default function Transactions() {
         <p className="muted">Cadastre uma conta primeiro na aba "Contas" para começar a lançar transações.</p>
       )}
 
+      <div className="filter-row">
+        <button className={filtroFixo === 'todos' ? 'active' : ''} onClick={() => setFiltroFixo('todos')}>Todas</button>
+        <button className={filtroFixo === 'fixo' ? 'active' : ''} onClick={() => setFiltroFixo('fixo')}>Fixas</button>
+        <button className={filtroFixo === 'variavel' ? 'active' : ''} onClick={() => setFiltroFixo('variavel')}>Variáveis</button>
+      </div>
+
       <div className="ledger">
         <div className="ledger-row ledger-head">
           <span>Data</span><span>Descrição</span><span>Conta</span><span>Categoria</span><span className="num">Valor</span><span></span>
         </div>
-        {loading ? <p className="muted">Carregando…</p> : transactions.length === 0 ? <p className="muted">Nenhuma transação ainda.</p> : (
-          transactions.map(t => (
+        {loading ? <p className="muted">Carregando…</p> : transacoesFiltradas.length === 0 ? <p className="muted">Nenhuma transação encontrada.</p> : (
+          transacoesFiltradas.map(t => (
             <div key={t.id} className="ledger-row">
               <span>{formatDate(t.date)}</span>
-              <span>{t.description}</span>
+              <span>{t.description}{t.is_fixed && <span className="fixed-badge">fixo</span>}</span>
               <span>{t.accounts?.name}</span>
               <span>
                 {t.categories?.name && (() => {

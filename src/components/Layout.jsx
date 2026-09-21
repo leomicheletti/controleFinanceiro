@@ -8,6 +8,7 @@ const links = [
   { to: '/', label: 'Painel', icon: '▤' },
   { to: '/transacoes', label: 'Transações', icon: '≡' },
   { to: '/contas', label: 'Contas', icon: '▢' },
+  { to: '/fixas', label: 'Despesas fixas', icon: '⟲' },
   { to: '/metas', label: 'Metas', icon: '◎' },
 ]
 
