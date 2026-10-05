@@ -10,6 +10,7 @@ const links = [
   { to: '/contas', label: 'Contas', icon: '▢' },
   { to: '/fixas', label: 'Despesas fixas', icon: '⟲' },
   { to: '/metas', label: 'Metas', icon: '◎' },
+  { to: '/acerto', label: 'Acerto do casal', icon: '⇄' },
 ]
 
 export default function Layout() {

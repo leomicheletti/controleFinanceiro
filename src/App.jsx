@@ -8,6 +8,7 @@ import Transactions from './pages/Transactions'
 import Accounts from './pages/Accounts'
 import Goals from './pages/Goals'
 import FixedExpenses from './pages/FixedExpenses'
+import CoupleSplit from './pages/CoupleSplit'
 
 function PrivateRoute({ children }) {
   const { session } = useAuth()
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="contas" element={<Accounts />} />
           <Route path="fixas" element={<FixedExpenses />} />
           <Route path="metas" element={<Goals />} />
+          <Route path="acerto" element={<CoupleSplit />} />
         </Route>
       </Routes>
     </AuthProvider>

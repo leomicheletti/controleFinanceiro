@@ -15,8 +15,14 @@ const TIPOS = [
 
 export default function Accounts() {
   const { user } = useAuth()
-  const { balances, reload, loading } = useFinanceData()
-  const [form, setForm] = useState({ name: '', type: 'corrente', initial_balance: '' })
+  const { accounts, balances, coupleNames, reload, loading } = useFinanceData()
+  const [form, setForm] = useState({ name: '', type: 'corrente', initial_balance: '', owner: 'conjunta' })
+  const owners = [
+    { value: 'conjunta', label: 'Conjunta' },
+    { value: 'a', label: coupleNames.a },
+    { value: 'b', label: coupleNames.b },
+  ]
+  const ownerOf = id => accounts.find(a => a.id === id)?.owner || 'conjunta'
   const [saving, setSaving] = useState(false)
 
   async function handleAdd(e) {
@@ -28,9 +34,15 @@ export default function Accounts() {
       name: form.name.trim(),
       type: form.type,
       initial_balance: Number(form.initial_balance) || 0,
+      owner: form.owner,
     })
-    setForm({ name: '', type: 'corrente', initial_balance: '' })
+    setForm({ name: '', type: 'corrente', initial_balance: '', owner: form.owner })
     setSaving(false)
+    reload()
+  }
+
+  async function handleChangeOwner(id, owner) {
+    await supabase.from('accounts').update({ owner }).eq('id', id)
     reload()
   }
 
@@ -52,6 +64,9 @@ export default function Accounts() {
         <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
           {TIPOS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
+        <select value={form.owner} onChange={e => setForm({ ...form, owner: e.target.value })} title="Titular da conta">
+          {owners.map(o => <option key={o.value} value={o.value}>Titular: {o.label}</option>)}
+        </select>
         <input type="number" step="0.01" placeholder="Saldo inicial" value={form.initial_balance} onChange={e => setForm({ ...form, initial_balance: e.target.value })} />
         <button type="submit" className="btn-primary" disabled={saving}>Adicionar conta</button>
       </form>
@@ -67,6 +82,9 @@ export default function Accounts() {
               </div>
               <h3>{b.name}</h3>
               <span className="account-balance">{formatBRL(b.balance)}</span>
+              <select className="owner-select" value={ownerOf(b.account_id)} onChange={e => handleChangeOwner(b.account_id, e.target.value)} title="Titular da conta">
+                {owners.map(o => <option key={o.value} value={o.value}>Titular: {o.label}</option>)}
+              </select>
             </div>
           ))}
         </div>

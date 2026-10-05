@@ -5,11 +5,11 @@ import { useFinanceData } from '../hooks/useFinanceData'
 import { formatBRL, formatDate } from '../utils/format'
 import { getCategoryColor } from '../utils/categoryColor'
 
-const emptyForm = { description: '', amount: '', type: 'despesa', account_id: '', category_id: '', date: new Date().toISOString().slice(0, 10), is_fixed: false }
+const emptyForm = { description: '', amount: '', type: 'despesa', account_id: '', category_id: '', date: new Date().toISOString().slice(0, 10), is_fixed: false, split: 'casal' }
 
 export default function Transactions() {
   const { user } = useAuth()
-  const { accounts, categories, transactions, reload, loading } = useFinanceData()
+  const { accounts, categories, transactions, coupleNames, reload, loading } = useFinanceData()
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [showCatForm, setShowCatForm] = useState(false)
@@ -29,6 +29,7 @@ export default function Transactions() {
       category_id: form.category_id || null,
       date: form.date,
       is_fixed: form.type === 'despesa' ? form.is_fixed : false,
+      split: form.type === 'despesa' ? form.split : 'casal',
     })
     setForm({ ...emptyForm, account_id: form.account_id })
     setSaving(false)
@@ -71,7 +72,7 @@ export default function Transactions() {
 
       <form onSubmit={handleAdd} className="tx-form">
         <div className="tx-type-toggle">
-          <button type="button" className={form.type === 'receita' ? 'active income' : ''} onClick={() => setForm({ ...form, type: 'receita', category_id: '', is_fixed: false })}>Receita</button>
+          <button type="button" className={form.type === 'receita' ? 'active income' : ''} onClick={() => setForm({ ...form, type: 'receita', category_id: '', is_fixed: false, split: 'casal' })}>Receita</button>
           <button type="button" className={form.type === 'despesa' ? 'active expense' : ''} onClick={() => setForm({ ...form, type: 'despesa', category_id: '' })}>Despesa</button>
         </div>
 
@@ -89,6 +90,14 @@ export default function Transactions() {
         </select>
 
         <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+
+        {form.type === 'despesa' && (
+          <select value={form.split} onChange={e => setForm({ ...form, split: e.target.value })} title="De quem é esta despesa">
+            <option value="casal">Do casal (dividir)</option>
+            <option value="a">Só de {coupleNames.a}</option>
+            <option value="b">Só de {coupleNames.b}</option>
+          </select>
+        )}
 
         {form.type === 'despesa' && (
           <label className="checkbox-label">
@@ -133,6 +142,7 @@ export default function Transactions() {
                 <div className="tx-item-title">
                   <span className="tx-desc">{t.description}</span>
                   {t.is_fixed && <span className="fixed-badge">fixo</span>}
+                  {t.type === 'despesa' && t.split && t.split !== 'casal' && <span className="fixed-badge">só {coupleNames[t.split]}</span>}
                 </div>
                 <div className="tx-item-meta">
                   <span>{formatDate(t.date)}</span>

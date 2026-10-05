@@ -449,3 +449,28 @@ input, select { font-family: inherit; }
 .pending-pill { background: rgba(251,191,84,0.16); color: var(--gold); }
 .muted-pill { background: rgba(255,255,255,0.06); color: var(--text-faint); }
 .input-day { max-width: 110px; }
+
+/* ---------- Acerto do casal ---------- */
+.small { font-size: 0.82rem; }
+.owner-select {
+  margin-top: 10px; width: 100%; padding: 7px 10px; border: 1px solid var(--glass-border); border-radius: 10px;
+  background: rgba(255,255,255,0.04); color: var(--text-soft); font-size: 0.8rem;
+}
+.owner-select option { background: var(--void-soft); color: var(--text); }
+.settle-list { display: flex; flex-direction: column; gap: 10px; }
+.settle-move {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  padding: 12px 14px; border-radius: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border-hover);
+}
+.settle-text { flex: 1 1 200px; }
+.settle-amount { font-size: 1.15rem; color: var(--gold); }
+.settle-table { box-shadow: none; }
+.settle-table .tx-item { flex-wrap: nowrap; }
+.settle-table .num { width: 120px; text-align: right; flex-shrink: 0; }
+.settle-head { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-soft); }
+.settle-total { font-weight: 700; background: rgba(124,92,252,0.08); }
+@media (max-width: 640px) {
+  .settle-table .tx-item { font-size: 0.78rem; gap: 8px; }
+  .settle-table .num { width: 88px; }
+}

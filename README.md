@@ -96,6 +96,22 @@ Pronto: backend, frontend e hospedagem, tudo sem custo.
   perto do vencimento e metas com prazo apertado. Tudo roda no próprio
   navegador, sem custo e sem enviar seus dados para nenhum serviço externo.
 
+## Acerto do casal
+
+Para finanças em conjunto, rode também `supabase/migration_003_acerto_casal.sql`
+no SQL Editor do Supabase. Depois:
+
+1. Na aba **Acerto do casal**, clique em "Configurar divisão" e informe os
+   dois nomes e a regra: meio a meio, proporcional à renda do mês ou um
+   percentual personalizado.
+2. Na aba **Contas**, defina o titular de cada conta (um de vocês ou conjunta).
+3. Ao lançar uma despesa, escolha se ela é **do casal** (dividida) ou
+   **só de um** dos dois.
+
+A página mostra, para o mês escolhido, quanto cada um deve depositar na
+conta conjunta e/ou transferir para o outro. Ao fazer a transferência,
+clique em "Marcar como feita" e o saldo é atualizado.
+
 ### Evoluindo para um assistente de IA de verdade (opcional)
 
 O painel de insights de hoje segue regras fixas (comparações, limites,
@@ -124,7 +140,8 @@ que eu monte o app Expo do zero também.
 finance-app/
 ├── supabase/
 │   ├── schema.sql                        # rode primeiro
-│   └── migration_002_fixed_expenses.sql  # rode depois (despesas fixas/orçamento)
+│   ├── migration_002_fixed_expenses.sql  # rode depois (despesas fixas/orçamento)
+│   └── migration_003_acerto_casal.sql    # acerto do casal
 └── frontend/
     ├── src/
     │   ├── pages/           # Login, Dashboard, Transações, Contas, Despesas fixas, Metas
