@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useFinanceData } from '../hooks/useFinanceData'
+import FormSheet from '../components/FormSheet'
 import { formatBRL, formatDate } from '../utils/format'
 
 const emptyForm = { name: '', target_amount: '', current_amount: '', deadline: '' }
@@ -46,13 +47,15 @@ export default function Goals() {
         <p className="muted">Defina objetivos e acompanhe o progresso</p>
       </header>
 
+      <FormSheet title="Nova meta" fabLabel="Meta">
       <form onSubmit={handleAdd} className="inline-form">
         <input placeholder="Nome da meta (ex: Reserva de emergência)" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-        <input type="number" step="0.01" placeholder="Valor alvo" value={form.target_amount} onChange={e => setForm({ ...form, target_amount: e.target.value })} required />
-        <input type="number" step="0.01" placeholder="Já tenho (opcional)" value={form.current_amount} onChange={e => setForm({ ...form, current_amount: e.target.value })} />
+        <input type="number" inputMode="decimal" step="0.01" placeholder="Valor alvo" value={form.target_amount} onChange={e => setForm({ ...form, target_amount: e.target.value })} required />
+        <input type="number" inputMode="decimal" step="0.01" placeholder="Já tenho (opcional)" value={form.current_amount} onChange={e => setForm({ ...form, current_amount: e.target.value })} />
         <input type="date" value={form.deadline} onChange={e => setForm({ ...form, deadline: e.target.value })} />
         <button type="submit" className="btn-primary" disabled={saving}>Criar meta</button>
       </form>
+      </FormSheet>
 
       {loading ? <p className="muted">Carregando…</p> : (
         <div className="goals-grid">

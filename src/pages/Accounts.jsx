@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useFinanceData } from '../hooks/useFinanceData'
+import FormSheet from '../components/FormSheet'
 import { formatBRL } from '../utils/format'
 
 const TIPOS = [
@@ -59,6 +60,7 @@ export default function Accounts() {
         <p className="muted">Corrente, poupança, cartão de crédito, carteira — quantas precisar.</p>
       </header>
 
+      <FormSheet title="Nova conta" fabLabel="Conta">
       <form onSubmit={handleAdd} className="inline-form">
         <input placeholder="Nome da conta (ex: Nubank)" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
         <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
@@ -67,9 +69,10 @@ export default function Accounts() {
         <select value={form.owner} onChange={e => setForm({ ...form, owner: e.target.value })} title="Titular da conta">
           {owners.map(o => <option key={o.value} value={o.value}>Titular: {o.label}</option>)}
         </select>
-        <input type="number" step="0.01" placeholder="Saldo inicial" value={form.initial_balance} onChange={e => setForm({ ...form, initial_balance: e.target.value })} />
+        <input type="number" inputMode="decimal" step="0.01" placeholder="Saldo inicial" value={form.initial_balance} onChange={e => setForm({ ...form, initial_balance: e.target.value })} />
         <button type="submit" className="btn-primary" disabled={saving}>Adicionar conta</button>
       </form>
+      </FormSheet>
 
       {loading ? <p className="muted">Carregando…</p> : (
         <div className="ledger-grid">

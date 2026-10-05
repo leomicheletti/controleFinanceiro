@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useFinanceData } from '../hooks/useFinanceData'
+import FormSheet from '../components/FormSheet'
 import { formatBRL } from '../utils/format'
 
 const emptyForm = { name: '', amount: '', category_id: '', account_id: '', due_day: '5' }
@@ -72,9 +73,10 @@ export default function FixedExpenses() {
         </div>
       </section>
 
+      <FormSheet title="Nova despesa fixa" fabLabel="Despesa fixa">
       <form onSubmit={handleAdd} className="inline-form">
         <input placeholder="Nome (ex: Aluguel)" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-        <input type="number" step="0.01" min="0.01" placeholder="Valor" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
+        <input type="number" inputMode="decimal" step="0.01" min="0.01" placeholder="Valor" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
         <select value={form.account_id} onChange={e => setForm({ ...form, account_id: e.target.value })} required>
           <option value="">Conta…</option>
           {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -86,6 +88,7 @@ export default function FixedExpenses() {
         <input type="number" min="1" max="31" placeholder="Dia venc." className="input-day" value={form.due_day} onChange={e => setForm({ ...form, due_day: e.target.value })} required />
         <button type="submit" className="btn-primary" disabled={saving}>Cadastrar</button>
       </form>
+      </FormSheet>
 
       {accounts.length === 0 && !loading && (
         <p className="muted">Cadastre uma conta primeiro na aba "Contas" para conseguir vincular uma despesa fixa.</p>

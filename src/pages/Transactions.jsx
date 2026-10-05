@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useFinanceData } from '../hooks/useFinanceData'
+import FormSheet from '../components/FormSheet'
 import { formatBRL, formatDate } from '../utils/format'
 import { getCategoryColor } from '../utils/categoryColor'
 
@@ -51,6 +52,7 @@ export default function Transactions() {
   }
 
   async function handleDelete(id) {
+    if (!confirm('Excluir esta transação?')) return
     await supabase.from('transactions').delete().eq('id', id)
     reload()
   }
@@ -70,6 +72,7 @@ export default function Transactions() {
         <p className="muted">Lançamentos de receitas e despesas, fixas ou variáveis</p>
       </header>
 
+      <FormSheet title="Novo lançamento" fabLabel="Lançar">
       <form onSubmit={handleAdd} className="tx-form">
         <div className="tx-type-toggle">
           <button type="button" className={form.type === 'receita' ? 'active income' : ''} onClick={() => setForm({ ...form, type: 'receita', category_id: '', is_fixed: false, split: 'casal' })}>Receita</button>
@@ -77,7 +80,7 @@ export default function Transactions() {
         </div>
 
         <input placeholder="Descrição" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required />
-        <input type="number" step="0.01" min="0.01" placeholder="Valor" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
+        <input type="number" inputMode="decimal" step="0.01" min="0.01" placeholder="Valor" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
 
         <select value={form.account_id} onChange={e => setForm({ ...form, account_id: e.target.value })} required>
           <option value="">Conta…</option>
@@ -118,11 +121,12 @@ export default function Transactions() {
             <option value="receita">Receita</option>
           </select>
           {newCat.type === 'despesa' && (
-            <input type="number" step="0.01" placeholder="Orçamento mensal (opcional)" value={newCat.monthly_budget} onChange={e => setNewCat({ ...newCat, monthly_budget: e.target.value })} />
+            <input type="number" inputMode="decimal" step="0.01" placeholder="Orçamento mensal (opcional)" value={newCat.monthly_budget} onChange={e => setNewCat({ ...newCat, monthly_budget: e.target.value })} />
           )}
           <button type="submit" className="btn-primary">Salvar categoria</button>
         </form>
       )}
+      </FormSheet>
 
       {accounts.length === 0 && !loading && (
         <p className="muted">Cadastre uma conta primeiro na aba "Contas" para começar a lançar transações.</p>
@@ -134,7 +138,7 @@ export default function Transactions() {
         <button className={filtroFixo === 'variavel' ? 'active' : ''} onClick={() => setFiltroFixo('variavel')}>Variáveis</button>
       </div>
 
-      <div className="ledger">
+      <div className="ledger compact">
         {loading ? <p className="muted">Carregando…</p> : transacoesFiltradas.length === 0 ? <p className="muted">Nenhuma transação encontrada.</p> : (
           transacoesFiltradas.map(t => (
             <div key={t.id} className="tx-item">
