@@ -8,8 +8,9 @@ import BrandMark from './BrandMark'
 const links = [
   { to: '/', label: 'Painel', short: 'Painel', icon: '▤' },
   { to: '/transacoes', label: 'Transações', short: 'Lançar', icon: '≡' },
-  { to: '/fixas', label: 'Despesas fixas', short: 'Fixas', icon: '⟲' },
+  { to: '/entregas', label: 'Entregas', short: 'Entregas', icon: '⛟' },
   { to: '/acerto', label: 'Acerto do casal', short: 'Acerto', icon: '⇄' },
+  { to: '/fixas', label: 'Despesas fixas', short: 'Fixas', icon: '⟲' },
   { to: '/contas', label: 'Contas', short: 'Contas', icon: '▢' },
   { to: '/metas', label: 'Metas', short: 'Metas', icon: '◎' },
 ]

@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useIsMobile } from '../hooks/useIsMobile'
+import Sheet from './Sheet'
 
 // No computador mostra o formulário normalmente na página.
 // No celular, esconde o formulário atrás de um botão flutuante "+" e o abre
@@ -7,17 +8,6 @@ import { useIsMobile } from '../hooks/useIsMobile'
 export default function FormSheet({ title, fabLabel, children }) {
   const isMobile = useIsMobile()
   const [open, setOpen] = useState(false)
-
-  useEffect(() => {
-    if (!open) return
-    document.body.classList.add('no-scroll')
-    const onKey = e => e.key === 'Escape' && setOpen(false)
-    window.addEventListener('keydown', onKey)
-    return () => {
-      document.body.classList.remove('no-scroll')
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [open])
 
   if (!isMobile) return children
 
@@ -29,17 +19,9 @@ export default function FormSheet({ title, fabLabel, children }) {
       </button>
 
       {open && (
-        <div className="sheet-root" role="dialog" aria-modal="true" aria-label={title}>
-          <div className="sheet-backdrop" onClick={() => setOpen(false)} />
-          <div className="sheet" onSubmit={() => setOpen(false)}>
-            <div className="sheet-handle" />
-            <div className="sheet-header">
-              <h2>{title}</h2>
-              <button className="sheet-close" onClick={() => setOpen(false)} aria-label="Fechar">✕</button>
-            </div>
-            <div className="sheet-body">{children}</div>
-          </div>
-        </div>
+        <Sheet title={title} onClose={() => setOpen(false)}>
+          <div onSubmit={() => setOpen(false)}>{children}</div>
+        </Sheet>
       )}
     </>
   )

@@ -112,6 +112,24 @@ A página mostra, para o mês escolhido, quanto cada um deve depositar na
 conta conjunta e/ou transferir para o outro. Ao fazer a transferência,
 clique em "Marcar como feita" e o saldo é atualizado.
 
+## Entregas (lucro real com Lalamove, Mercado Livre, Shopee...)
+
+Rode `supabase/migration_004_entregas.sql` no SQL Editor do Supabase. Na aba **Entregas**:
+
+1. **Ajustes**: escolha quem faz as entregas e o km/l estimado do carro.
+2. **Combustível**: registre cada abastecimento (valor, litros, km do painel,
+   tanque cheio). Com dois tanques cheios o app passa a usar o km/l **real**.
+3. **Iniciar jornada** com o km do painel; durante o dia use **+ Ganho**
+   (plataforma, valor, nº de entregas, gorjeta) e **+ Gasto** (pedágio,
+   estacionamento, alimentação...); no fim, **Encerrar** com o km final.
+
+Como o carro também é usado fora das entregas, o custo de combustível de cada
+jornada é *km rodados na jornada × custo por km* (preço do litro ÷ km/l), e não
+o valor abastecido. O **Resumo** mostra lucro líquido, lucro por hora, por km e
+por entrega e compara as plataformas; a **Calculadora** diz se uma oferta de
+corrida vale a pena em relação à sua média. Os ganhos e abastecimentos podem
+ser lançados nas Transações com um clique, sem duplicar.
+
 ### Evoluindo para um assistente de IA de verdade (opcional)
 
 O painel de insights de hoje segue regras fixas (comparações, limites,
@@ -141,7 +159,8 @@ finance-app/
 ├── supabase/
 │   ├── schema.sql                        # rode primeiro
 │   ├── migration_002_fixed_expenses.sql  # rode depois (despesas fixas/orçamento)
-│   └── migration_003_acerto_casal.sql    # acerto do casal
+│   ├── migration_003_acerto_casal.sql    # acerto do casal
+│   └── migration_004_entregas.sql        # módulo de entregas
 └── frontend/
     ├── src/
     │   ├── pages/           # Login, Dashboard, Transações, Contas, Despesas fixas, Metas
